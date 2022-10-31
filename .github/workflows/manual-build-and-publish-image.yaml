@@ -1,0 +1,59 @@
+name: Manual build and publish a container image
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseImageTag:
+        description: 'Base image tag'
+        required: true
+        default: 2.2.0-gpu-jupyter
+        type: choice
+        options:
+          - 2.2.0-gpu-jupyter
+          - 2.2.0-gpu
+          - 2.2.1-gpu-jupyter
+          - 2.2.1-gpu
+          - 2.2.3-gpu-jupyter
+          - 2.2.3-gpu
+          - 2.3.4-gpu-jupyter
+          - 2.3.4-gpu
+          - 2.4.3-gpu-jupyter
+          - 2.4.3-gpu
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.baseImageTag }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=tensorflow/tensorflow:${{ inputs.baseImageTag }}
