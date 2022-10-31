@@ -80,8 +80,8 @@ RUN set -ex; \
     rm -rf /var/lib/apt/lists/*;
 
 
-ARG CODESERVER_PYTHON_VERSION=2022.17.13001027
-
+#ARG CODESERVER_PYTHON_VERSION=2022.17.13001027
+ARG CODESERVER_PYTHON_VERSION=2022.8.1
 # install - codeserver extensions
 RUN set -ex; \
     \
