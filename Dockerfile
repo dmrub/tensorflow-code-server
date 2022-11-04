@@ -3,7 +3,7 @@ ARG BASE_IMAGE=tensorflow/tensorflow:2.2.0-gpu-jupyter
 FROM $BASE_IMAGE
 
 LABEL org.opencontainers.image.authors="Dmitri Rubinstein"
-LABEL org.opencontainers.image.source="https://github.com/dmrub/tensorflow-codeserver"
+LABEL org.opencontainers.image.source="https://github.com/dmrub/tensorflow-codes-erver"
 
 ARG S6_ARCH="x86_64"
 ARG S6_OVERLAY_VERSION=3.1.2.1
@@ -44,17 +44,31 @@ RUN set -ex; \
         gnupg \
         gnupg2 \
         locales \
-        lsb-release \
         nano \
-        software-properties-common \
         tzdata \
         unzip \
         vim \
         wget \
         zip; \
+        \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*;
 # From https://github.com/kubeflow/kubeflow/blob/master/components/example-notebook-servers/codeserver/Dockerfile
+
+RUN if command -v conda >/dev/null 2>&1; then \
+        if ! conda list ipywidgets | grep -qF ipywidgets; then \
+            conda install ipywidgets; \
+        fi; \
+    elif ! python3 -m pip show ipywidgets; then \
+        python3 -m pip install ipywidgets; \
+    fi; \
+    \
+    if ! python3 -c "import ipywidgets"; then \
+        echo >&2 "Could not install ipywidgets module"; \
+        exit 1; \
+    fi;
+
+# RUN set -ex; sh -c "type /usr/bin/python3; exit 3";
 
 # set locale configs
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
