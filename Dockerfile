@@ -35,6 +35,7 @@ RUN set -ex; \
     apt-get install -yq --no-install-recommends \
         htop \
         rsync \
+        openssh-client \
         apt-transport-https \
         bash \
         bzip2 \
