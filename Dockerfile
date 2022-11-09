@@ -52,6 +52,12 @@ RUN set -ex; \
         wget \
         zip; \
         \
+    if command -v python3 >/dev/null 2>&1; then \
+        if ! python3 -Im ensurepip --version; then \
+            apt-get install -yq --no-install-recommends python3-venv; \
+        fi; \
+    fi; \
+    \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*;
 # From https://github.com/kubeflow/kubeflow/blob/master/components/example-notebook-servers/codeserver/Dockerfile
