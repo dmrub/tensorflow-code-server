@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-THIS_DIR=$( cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P )
-
 set -eo pipefail
+
+THIS_DIR=$( cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P )
 
 error() {
     echo >&2 "* Error: $*"
@@ -16,7 +16,6 @@ fatal() {
 message() {
     echo "$@"
 }
-
 
 usage() {
     echo "./docker-build.sh [-t|--tag image] [--no-cache]"
