@@ -17,16 +17,49 @@ message() {
     echo "* $*"
 }
 
+usage() {
+    echo "./docker-run.sh [--net=*] [--]"
+}
+
+
 # shellcheck source=docker-config.sh
 source "$THIS_DIR/docker-config.sh" || \
     fatal "Could not load configuration from $THIS_DIR/docker-config.sh"
 
-mkdir -p "${THIS_DIR}/user_data"
 
 # USER_DIR=/tf
 USER_DIR=/home/jovyan
 
 ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --net=*)
+            ARGS+=("$1")
+            shift
+            ;;
+        --help)
+            usage
+            exit
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            fatal "Unknown option $1"
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+echo "Image Configuration:"
+echo "IMAGE_NAME:        $IMAGE_NAME"
+echo "IMAGE:             $IMAGE"
+
+mkdir -p "${THIS_DIR}/user_data"
 
 if [[ -n "$PASSWORD" ]]; then
     ARGS+=(-e "PASSWORD=$PASSWORD")
@@ -38,7 +71,7 @@ fi
 
 set -x
 docker run --rm -it  \
-    --gpus=all --net=host \
+    --gpus=all \
     -u "$(id -u):$(id -g)" \
     "${ARGS[@]}" \
     -e "DEFAULT_WORKSPACE=${USER_DIR}" \
