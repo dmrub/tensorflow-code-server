@@ -19,6 +19,25 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 
 ENTRYPOINT ["/init"]
 
+# Compatibility with kubeflow
+# https://github.com/kubeflow/kubeflow/blob/master/components/example-notebook-servers/base/Dockerfile
+ARG NB_USER
+ARG NB_GROUP
+ARG NB_UID
+ARG NB_PREFIX
+ARG HOME
+
+ENV NB_USER ${NB_USER:-jovyan}
+ENV NB_GROUP ${NB_GROUP:-users}
+ENV NB_UID ${NB_UID:-1000}
+ENV NB_PREFIX ${NB_PREFIX:-/}
+
+ENV HOME /home/$NB_USER
+ENV SHELL /bin/bash
+
+# set shell to bash
+SHELL ["/bin/bash", "-c"]
+
 # Workaround
 # https://github.com/NVIDIA/nvidia-docker/issues/1632#issuecomment-1135513277
 RUN set -ex; \
@@ -33,6 +52,7 @@ RUN set -ex; \
     export DEBIAN_FRONTEND=noninteractive; \
     apt-get update -yq; \
     apt-get install -yq --no-install-recommends \
+        sudo \
         htop \
         rsync \
         openssh-client \
@@ -58,9 +78,23 @@ RUN set -ex; \
         fi; \
     fi; \
     \
+    # create user and set required ownership
+    useradd -M -s "$SHELL" -N -u ${NB_UID} ${NB_USER}; \
+    if [[ -n "$HOME" && ! -d "$HOME" ]]; then \
+        mkdir -p "${HOME}"; \
+        chown "$NB_USER:$NB_GROUP" -R "$HOME"; \
+    fi; \
+    if [[ ! -f /etc/sudoers ]] || ! grep -q "^${NB_USER}[[:space:]]" /etc/sudoers; then \
+        if [[ ! -f /etc/sudoers ]]; then \
+            touch /etc/sudoers; \
+        fi; \
+        chmod 0660 /etc/sudoers; \
+        echo "${NB_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers; \
+        chmod 0440 /etc/sudoers; \
+    fi; \
+    \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*;
-# From https://github.com/kubeflow/kubeflow/blob/master/components/example-notebook-servers/codeserver/Dockerfile
 
 RUN if command -v conda >/dev/null 2>&1; then \
         if ! conda list ipywidgets | grep -qF ipywidgets; then \
@@ -75,8 +109,6 @@ RUN if command -v conda >/dev/null 2>&1; then \
         exit 1; \
     fi;
 
-# RUN set -ex; sh -c "type /usr/bin/python3; exit 3";
-
 # set locale configs
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
@@ -84,6 +116,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
+# From https://github.com/kubeflow/kubeflow/blob/master/components/example-notebook-servers/codeserver/Dockerfile
 # args - software versions
  # renovate: datasource=github-tags depName=cdr/code-server versioning=semver
 #ARG CODESERVER_VERSION=v4.8.0
@@ -120,4 +153,12 @@ RUN set -ex; \
 COPY --chown=root:root s6/ /etc
 RUN chmod +x /etc/services.d/code-server/run
 
+# s6 - 01-copy-tmp-home
+RUN set -ex; \
+    mkdir -p /tmp_home; \
+    cp -r "${HOME}" /tmp_home; \
+    chown -R "${NB_USER}:${NB_GROUP}" /tmp_home;
+
 RUN pip3 --no-cache-dir install jupyterlab
+
+USER $NB_USER

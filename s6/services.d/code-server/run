@@ -1,6 +1,32 @@
 #!/usr/bin/with-contenv bash
-exec /usr/bin/code-server \
-  --bind-addr 0.0.0.0:8888 \
-  --disable-telemetry \
-  --auth none \
+# shellcheck shell=bash
+
+message() {
+    echo >&2 "[code-server] $*"
+}
+
+message "EUID=$EUID"
+
+if [ -n "${PASSWORD}" ] || [ -n "${HASHED_PASSWORD}" ]; then
+    AUTH="password"
+else
+    # shellcheck disable=SC2034
+    AUTH="none"
+    message "starting with no password"
+fi
+
+ARGS=(
+  /usr/bin/code-server
+  --bind-addr 0.0.0.0:8888
+  --disable-telemetry
+  --auth "${AUTH}"
   "${DEFAULT_WORKSPACE:-/}"
+)
+
+if [[ $EUID -ne 0 ]]; then
+  # user is not root
+  exec "${ARGS[@]}"
+else
+  # user is root, drop privileges
+  exec s6-setuidgid "${NB_USER}" "${ARGS[@]}"
+fi
