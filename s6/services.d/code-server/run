@@ -1,6 +1,8 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
+set -eo pipefail
+
 message() {
     echo >&2 "[code-server] $*"
 }
@@ -24,9 +26,19 @@ ARGS=(
 )
 
 if [[ $EUID -ne 0 ]]; then
+  if ! mkdir -p "$HOME/.config/code-server"; then
+    message "Could not create the $HOME/.config/code-server directory and do not have root privileges"
+    message "Please run this container as root to set the permissions or change the permissions for the $HOME directory manually"
+    message "with the command \`sudo chown -R \"\$(id -u):\$(id -g)\" \"$HOME\";\`"
+  fi
   # user is not root
   exec "${ARGS[@]}"
 else
+  USER_UID=$(id -u "$NB_USER")
+  USER_GID=$(id -g "$NB_USER")
+  mkdir -p "$HOME/.config/code-server"
+  chown "${USER_UID}:${USER_GID}" "$HOME" "$HOME/.config" "$HOME/.local";
+  chown -R "${USER_UID}:${USER_GID}" "$HOME/.config" "$HOME/.local";
   # user is root, drop privileges
-  exec s6-setuidgid "${NB_USER}" "${ARGS[@]}"
+  exec s6-setuidgid "${USER_UID}:${USER_GID}" "${ARGS[@]}"
 fi
