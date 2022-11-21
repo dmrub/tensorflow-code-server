@@ -18,7 +18,7 @@ message() {
 }
 
 usage() {
-    echo "./docker-run.sh [--net=*] [--]"
+    echo "./docker-run.sh [--net=*] [--as-root] [--]"
 }
 
 
@@ -32,6 +32,9 @@ USER_DIR=/home/jovyan
 
 ARGS=()
 
+
+AS_USER="$(id -u):$(id -g)"
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --net=*)
@@ -41,6 +44,10 @@ while [[ $# -gt 0 ]]; do
         --help)
             usage
             exit
+            ;;
+        --as-root)
+            AS_USER="root:root"
+            shift
             ;;
         --)
             shift
@@ -72,7 +79,7 @@ fi
 set -x
 docker run --rm -it  \
     --gpus=all \
-    -u "$(id -u):$(id -g)" \
+    -u "$AS_USER" \
     "${ARGS[@]}" \
     -e "DEFAULT_WORKSPACE=${USER_DIR}" \
     -v "${THIS_DIR}/user_data:${USER_DIR}" \
