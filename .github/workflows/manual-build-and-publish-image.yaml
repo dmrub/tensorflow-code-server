@@ -11,16 +11,22 @@ on:
         options:
           - tensorflow/tensorflow:2.2.0-gpu-jupyter
           - tensorflow/tensorflow:2.2.0-gpu
+          - tensorflow/tensorflow:2.2.0-jupyter
           - tensorflow/tensorflow:2.2.1-gpu-jupyter
           - tensorflow/tensorflow:2.2.1-gpu
+          - tensorflow/tensorflow:2.2.1-jupyter
           - tensorflow/tensorflow:2.2.3-gpu-jupyter
           - tensorflow/tensorflow:2.2.3-gpu
+          - tensorflow/tensorflow:2.2.3-jupyter
           - tensorflow/tensorflow:2.3.4-gpu-jupyter
           - tensorflow/tensorflow:2.3.4-gpu
+          - tensorflow/tensorflow:2.3.4-jupyter
           - tensorflow/tensorflow:2.4.3-gpu-jupyter
           - tensorflow/tensorflow:2.4.3-gpu
+          - tensorflow/tensorflow:2.4.3-jupyter
           - tensorflow/tensorflow:2.8.4-gpu-jupyter
           - tensorflow/tensorflow:2.8.4-gpu
+          - tensorflow/tensorflow:2.8.4-jupyter
           - nvcr.io/nvidia/pytorch:21.12-py3
 env:
   REGISTRY: ghcr.io
