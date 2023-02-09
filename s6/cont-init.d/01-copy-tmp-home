@@ -8,7 +8,7 @@ message() {
 message "EUID=$EUID"
 
 set -x
-cp -v -r -n /tmp_home/* /home/ || true;
+cp -r -n /tmp_home/* /home/ || true;
 
 set +x
 message "Done"
