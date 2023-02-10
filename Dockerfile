@@ -7,6 +7,9 @@ LABEL org.opencontainers.image.source="https://github.com/dmrub/tensorflow-codes
 
 ARG S6_ARCH="x86_64"
 ARG S6_OVERLAY_VERSION=3.1.2.1
+ARG KUBECTL_ARCH="amd64"
+ARG KUBECTL_VERSION=v1.21.0
+ARG KUBECTL_INSTALL=1
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
@@ -58,6 +61,7 @@ RUN set -ex; \
         openssh-client \
         apt-transport-https \
         bash \
+        bash-completion \
         bzip2 \
         ca-certificates \
         curl \
@@ -96,9 +100,19 @@ RUN set -ex; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*;
 
+# install - kubectl
+RUN set -ex; \
+    if [ "x${KUBECTL_INSTALL}" != "x" ]; then \
+      curl -sL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl" -o /usr/local/bin/kubectl; \
+      curl -sL "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl.sha256" -o /tmp/kubectl.sha256; \
+      echo "$(cat /tmp/kubectl.sha256) /usr/local/bin/kubectl" | sha256sum --check; \
+      rm /tmp/kubectl.sha256; \
+      chmod +x /usr/local/bin/kubectl; \
+    fi;
+
 RUN if command -v conda >/dev/null 2>&1; then \
         if ! conda list ipywidgets | grep -qF ipywidgets; then \
-            conda install ipywidgets; \
+            conda install ipywidgets -y; \
         fi; \
     elif ! python3 -m pip show ipywidgets; then \
         python3 -m pip install ipywidgets; \
