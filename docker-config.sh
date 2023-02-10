@@ -2,9 +2,8 @@
 ############### Configuration ###############
 
 # shellcheck disable=SC2034
-BASE_IMAGE=tensorflow/tensorflow:2.2.0-gpu-jupyter
-# BASE_IMAGE=tensorflow/tensorflow:2.4.3-gpu-jupyter
-# BASE_IMAGE=nvcr.io/nvidia/pytorch:21.12-py3
+# BASE_IMAGE=tensorflow/tensorflow:2.8.4-gpu-jupyter
+BASE_IMAGE=nvcr.io/nvidia/pytorch:21.12-py3
 
 # IMAGE_PREFIX=${IMAGE_PREFIX:-}
 
