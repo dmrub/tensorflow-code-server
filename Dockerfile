@@ -11,6 +11,18 @@ ARG KUBECTL_ARCH="amd64"
 ARG KUBECTL_VERSION=v1.21.0
 ARG KUBECTL_INSTALL=1
 
+RUN set -ex; \
+    \
+    if ! command -v xz >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then \
+        export DEBIAN_FRONTEND=noninteractive; \
+        apt-get update -yq; \
+        apt-get install -yq --no-install-recommends \
+            tar xz-utils; \
+        \
+        apt-get clean; \
+        rm -rf /var/lib/apt/lists/*; \
+    fi;
+
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz /tmp
