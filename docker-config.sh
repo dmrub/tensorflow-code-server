@@ -12,6 +12,7 @@ BASE_IMAGE_NAME=${BASE_IMAGE%%:*};
 case "$BASE_IMAGE_NAME" in
   tensorflow/tensorflow) IMAGE_NAME=tensorflow-code-server;;
   nvcr.io/nvidia/pytorch) IMAGE_NAME=pytorch-code-server;;
+  ghcr.io/dmrub/fastai) IMAGE_NAME=fastai-code-server;;
   *) echo >&2 "Error: unknown base image: $BASE_IMAGE_NAME"; exit 1;;
 esac;
 

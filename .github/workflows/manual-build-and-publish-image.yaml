@@ -28,6 +28,7 @@ on:
           - tensorflow/tensorflow:2.8.4-gpu
           - tensorflow/tensorflow:2.8.4-jupyter
           - nvcr.io/nvidia/pytorch:21.12-py3
+          - ghcr.io/dmrub/fastai:11.8.0-runtime-ubuntu22.04
 env:
   REGISTRY: ghcr.io
   REPO_NAME: ${{ github.repository }}
@@ -49,6 +50,7 @@ jobs:
           case "$BASE_IMAGE_NAME" in
             tensorflow/tensorflow) IMAGE_NAME=$GITHUB_REPOSITORY_OWNER/tensorflow-code-server;;
             nvcr.io/nvidia/pytorch) IMAGE_NAME=$GITHUB_REPOSITORY_OWNER/pytorch-code-server;;
+            ghcr.io/dmrub/fastai) IMAGE_NAME=$GITHUB_REPOSITORY_OWNER/fastai-code-server;;
             *) echo >&2 "Error: unknown base image: $BASE_IMAGE_NAME"; exit 1;;
           esac;
           IMAGE_TAG=$BASE_IMAGE_TAG;
