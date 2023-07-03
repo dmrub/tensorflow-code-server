@@ -24,10 +24,33 @@ on:
           - tensorflow/tensorflow:2.4.3-gpu-jupyter
           - tensorflow/tensorflow:2.4.3-gpu
           - tensorflow/tensorflow:2.4.3-jupyter
+          - tensorflow/tensorflow:2.5.1-gpu-jupyter
+          - tensorflow/tensorflow:2.5.1-gpu
+          - tensorflow/tensorflow:2.5.1-jupyter
+          - tensorflow/tensorflow:2.6.1-gpu-jupyter
+          - tensorflow/tensorflow:2.6.1-gpu
+          - tensorflow/tensorflow:2.6.1-jupyter
+          - tensorflow/tensorflow:2.7.4-gpu-jupyter
+          - tensorflow/tensorflow:2.7.4-gpu
+          - tensorflow/tensorflow:2.7.4-jupyter
           - tensorflow/tensorflow:2.8.4-gpu-jupyter
           - tensorflow/tensorflow:2.8.4-gpu
           - tensorflow/tensorflow:2.8.4-jupyter
+          - tensorflow/tensorflow:2.9.3-gpu-jupyter
+          - tensorflow/tensorflow:2.9.3-gpu
+          - tensorflow/tensorflow:2.9.3-jupyter
+          - tensorflow/tensorflow:2.10.1-gpu-jupyter
+          - tensorflow/tensorflow:2.10.1-gpu
+          - tensorflow/tensorflow:2.10.1-jupyter
+          - tensorflow/tensorflow:2.11.1-gpu-jupyter
+          - tensorflow/tensorflow:2.11.1-gpu
+          - tensorflow/tensorflow:2.11.1-jupyter
+          - tensorflow/tensorflow:2.12.0-gpu-jupyter
+          - tensorflow/tensorflow:2.12.0-gpu
+          - tensorflow/tensorflow:2.12.0-jupyter
           - nvcr.io/nvidia/pytorch:21.12-py3
+          - nvcr.io/nvidia/pytorch:22.12-py3
+          - nvcr.io/nvidia/pytorch:23.06-py3
           - ghcr.io/dmrub/fastai:11.8.0-runtime-ubuntu22.04
 env:
   REGISTRY: ghcr.io
