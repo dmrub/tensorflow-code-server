@@ -160,19 +160,43 @@ RUN set -ex; \
     rm -rf /var/lib/apt/lists/*;
 
 
-#ARG CODESERVER_PYTHON_VERSION=2022.17.13001027
-ARG CODESERVER_PYTHON_VERSION=2022.8.1
 # install - codeserver extensions
+
+ARG CODESERVER_PYTHON_VERSION=2023.17.12551009
+#ARG CODESERVER_PYTHON_VERSION=2022.8.1
+
 RUN set -ex; \
     \
     URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/python/${CODESERVER_PYTHON_VERSION}/vspackage"; \
+    FILE=/tmp/ms-python-release.vsix; \
     MAX=10; \
+    SLEEP_TIME=5; \
     I=0; \
-    while [ $I -lt $MAX ] && ! curl --compressed -# -f -L -o /tmp/ms-python-release.vsix "$URL"; do \
-        sleep 1; \
+    while [ $I -lt $MAX ] && ! curl --compressed -# -f -L -o "$FILE" "$URL"; do \
+        sleep $SLEEP_TIME; \
         I=$((I+1)); \
+        SLEEP_TIME=$((SLEEP_TIME+1)); \
     done; \
-    code-server --install-extension /tmp/ms-python-release.vsix; \
+    ls -lah "$FILE"; \
+    code-server --install-extension "$FILE"; \
+    code-server --list-extensions --show-versions;
+
+ARG CODESERVER_DVC_VERSION=1.0.53
+
+RUN set -ex; \
+    \
+    URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Iterative/vsextensions/dvc/${CODESERVER_DVC_VERSION}/vspackage"; \
+    FILE="/tmp/dvc-release.vsix"; \
+    MAX=10; \
+    SLEEP_TIME=5; \
+    I=0; \
+    while [ $I -lt $MAX ] && ! curl --compressed -# -f -L -o "$FILE" "$URL"; do \
+        sleep $SLEEP_TIME; \
+        I=$((I+1)); \
+        SLEEP_TIME=$((SLEEP_TIME+1)); \
+    done; \
+    ls -lah "$FILE"; \
+    code-server --install-extension "$FILE"; \
     code-server --list-extensions --show-versions;
 
 # s6 - copy scripts
