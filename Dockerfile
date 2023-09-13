@@ -185,6 +185,7 @@ ARG CODESERVER_DVC_VERSION=1.0.53
 
 RUN set -ex; \
     \
+    pip install dvc; \
     URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Iterative/vsextensions/dvc/${CODESERVER_DVC_VERSION}/vspackage"; \
     FILE="/tmp/dvc-release.vsix"; \
     MAX=10; \
