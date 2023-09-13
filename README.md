@@ -20,6 +20,11 @@ tensorflow-code-server is a container image which adds to the tensorflow image a
  - **PASSWORD**: Optional Web UI password; if neither `PASSWORD` nor `HASHED_PASSWORD` are specified, no authentication will occur.
  - **HASHED_PASSWORD**: Optional web UI password, overrides `PASSWORD`, see below for instructions on how to create it.
 
+## Configuration files used by Dockerfile
+
+- `extensions.txt` - file with the list of VSCode extensions that will be installed when the image is built
+- `requirements.txt` - file with the list of Python modules that will be installed by pip when the image is built
+
 ## Create Hashed Password
 
 ### With Node.js

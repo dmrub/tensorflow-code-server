@@ -78,6 +78,7 @@ RUN set -ex; \
         ca-certificates \
         curl \
         git \
+        less \
         gnupg \
         gnupg2 \
         locales \
@@ -156,48 +157,36 @@ RUN set -ex; \
     dpkg -i /tmp/code-server.deb; \
     rm -f /tmp/code-server.deb; \
     \
+    if code_server_path=$(command -v code-server 2>/dev/null); then \
+        code_server_dir=$(dirname -- "$code_server_path"); \
+        if [ ! -e "$code_server_dir/code" ]; then \
+            printf "#!/usr/bin/env sh\nexec code-server \"\$@\"\n" > "$code_server_dir/code"; \
+            chmod 0755 "$code_server_dir/code"; \
+        fi; \
+    fi; \
+    \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*;
 
-
 # install - codeserver extensions
 
-ARG CODESERVER_PYTHON_VERSION=2023.17.12551009
-#ARG CODESERVER_PYTHON_VERSION=2022.8.1
+COPY extensions.txt /tmp/extensions.txt
+COPY requirements.txt /tmp/requirements.txt
 
 RUN set -ex; \
     \
-    URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/python/${CODESERVER_PYTHON_VERSION}/vspackage"; \
-    FILE=/tmp/ms-python-release.vsix; \
-    MAX=10; \
-    SLEEP_TIME=5; \
-    I=0; \
-    while [ $I -lt $MAX ] && ! curl --compressed -# -f -L -o "$FILE" "$URL"; do \
-        sleep $SLEEP_TIME; \
-        I=$((I+1)); \
-        SLEEP_TIME=$((SLEEP_TIME+1)); \
-    done; \
-    ls -lah "$FILE"; \
-    code-server --install-extension "$FILE"; \
-    code-server --list-extensions --show-versions;
-
-ARG CODESERVER_DVC_VERSION=1.0.53
-
-RUN set -ex; \
+    pip install -r /tmp/requirements.txt; \
     \
-    pip install dvc; \
-    URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Iterative/vsextensions/dvc/${CODESERVER_DVC_VERSION}/vspackage"; \
-    FILE="/tmp/dvc-release.vsix"; \
-    MAX=10; \
-    SLEEP_TIME=5; \
-    I=0; \
-    while [ $I -lt $MAX ] && ! curl --compressed -# -f -L -o "$FILE" "$URL"; do \
-        sleep $SLEEP_TIME; \
-        I=$((I+1)); \
-        SLEEP_TIME=$((SLEEP_TIME+1)); \
-    done; \
-    ls -lah "$FILE"; \
-    code-server --install-extension "$FILE"; \
+    while IFS= read -r line; do \
+        stripped_line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"; \
+        case "$stripped_line" in \
+            '#'* | "") ;; \
+            *) \
+                code-server --install-extension "$stripped_line"; \
+            ;; \
+        esac; \
+    done < /tmp/extensions.txt; \
+    \
     code-server --list-extensions --show-versions;
 
 # s6 - copy scripts
